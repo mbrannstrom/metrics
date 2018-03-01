@@ -128,6 +128,13 @@ public class MetricRegistry implements MetricSet {
     public Counter counter(MetricName name) {
         return getOrAdd(name, MetricBuilder.COUNTERS);
     }
+    
+    public NamedMetric<Counter> counter2() {
+        return new NamedMetric<>(MetricName.empty(), this::counter);
+    }
+    public NamedMetric<Counter> counter2(MetricSupplier<Counter> supplier) {
+        return new NamedMetric<>(MetricName.empty(), name -> counter(name, supplier));
+    }
 
     /**
      * @see #histogram(MetricName)
