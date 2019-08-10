@@ -88,6 +88,61 @@ public class MetricRegistry implements MetricSet {
      */
     @SuppressWarnings("unchecked")
     public <T extends Metric> T register(MetricName name, T metric) throws IllegalArgumentException {
+        if (metric instanceof MetricRegistry) {
+            final MetricRegistry childRegistry = (MetricRegistry) metric;
+            final MetricName childName = name;
+            childRegistry.addListener(new MetricRegistryListener() {
+                @Override
+                public void onGaugeAdded(MetricName name, Gauge<?> gauge) {
+                    register(childName.append(name), gauge);
+                }
+
+                @Override
+                public void onGaugeRemoved(MetricName name) {
+                    remove(childName.append(name));
+                }
+
+                @Override
+                public void onCounterAdded(MetricName name, Counter counter) {
+                    register(childName.append(name), counter);
+                }
+
+                @Override
+                public void onCounterRemoved(MetricName name) {
+                    remove(childName.append(name));
+                }
+
+                @Override
+                public void onHistogramAdded(MetricName name, Histogram histogram) {
+                    register(childName.append(name), histogram);
+                }
+
+                @Override
+                public void onHistogramRemoved(MetricName name) {
+                    remove(childName.append(name));
+                }
+
+                @Override
+                public void onMeterAdded(MetricName name, Meter meter) {
+                    register(childName.append(name), meter);
+                }
+
+                @Override
+                public void onMeterRemoved(MetricName name) {
+                    remove(childName.append(name));
+                }
+
+                @Override
+                public void onTimerAdded(MetricName name, Timer timer) {
+                    register(childName.append(name), timer);
+                }
+
+                @Override
+                public void onTimerRemoved(MetricName name) {
+                    remove(childName.append(name));
+                }
+            });
+        }
         if (metric instanceof MetricSet) {
             registerAll(name, (MetricSet) metric);
         } else {
